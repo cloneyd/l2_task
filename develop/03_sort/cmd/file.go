@@ -1,13 +1,25 @@
 package cmd
 
-import "os"
+import (
+	"bufio"
+	"os"
+)
 
-func openFile(fileName string) (*os.File, error) {
+func readFile(fileName string) ([]string, error) {
+	var lines []string
+
 	file, err := os.OpenFile(fileName, os.O_RDONLY, 0755)
-
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
 
-	return file, nil
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		lines = append(lines, line)
+	}
+
+	return lines, nil
 }
