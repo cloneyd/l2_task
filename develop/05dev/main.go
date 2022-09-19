@@ -1,8 +1,6 @@
 package main
 
-import (
-	"mysort/cmd"
-)
+import "05dev/cmd"
 
 func main() {
 	cmd.Execute()

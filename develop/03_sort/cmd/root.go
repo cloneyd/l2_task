@@ -4,8 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
+	"mysort/internal/file"
+	sort2 "mysort/internal/sort"
 	"sort"
-	"strings"
 )
 
 var (
@@ -14,50 +15,54 @@ var (
 	numericSort bool
 	reverse     bool
 	unique      bool
+	check       bool
 
 	rootCmd = &cobra.Command{
 		Use:   "mysort",
 		Short: "Sorting util for strings in FILE(s)",
 		Long:  "Write sorted concatenation of all FILE(s) to standard output.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("Welcome to mysort util!")
-
 			if len(args) == 0 {
-				return errors.New("you haven't specified file to sort")
+				return errors.New("you haven't specified any file")
 			}
 
-			res, err := readFile(args[0])
+			var reader file.Reader
+
+			if unique {
+				reader = file.ReadFileUnique
+			} else {
+				reader = file.ReadFile
+			}
+
+			res, err := file.ReadFiles(args, reader)
 			if err != nil {
 				return err
 			}
 
-			key = 1
+			var sorter sort.Interface
 
-			var resCol []string
-			for _, line := range res {
-				words := strings.Fields(line)[1]
-				resCol = append(resCol, words)
+			switch {
+			case key == 0:
+				break
+			case key < 0:
+				return errors.New(fmt.Sprintf("wrond index [%d]", key))
+			default:
+
 			}
 
-			// mathematically
-			sort.Sort(MathSort(res))
-			fmt.Println("Mathematically:")
-			for _, line := range res {
-				fmt.Printf("%q\n", line)
+			if numericSort {
+				sorter = sort2.MathSort(res)
+			} else {
+				sorter = sort2.LenSort(res)
 			}
 
-			// by length
-			sort.Sort(LenSort(res))
-			fmt.Println("By length:")
-			for _, line := range res {
-				fmt.Printf("%q\n", line)
+			if reverse {
+				sorter = sort.Reverse(sorter)
 			}
 
-			sort.Sort(sort.Reverse(LenSort(res)))
-			fmt.Println("Reverse by length:")
-			for _, line := range res {
-				fmt.Printf("%q\n", line)
-			}
+			sort.Sort(sorter)
+
+			printResult(res)
 
 			return nil
 		},
@@ -67,6 +72,12 @@ var (
 // Execute executes the root command.
 func Execute() error {
 	return rootCmd.Execute()
+}
+
+func printResult(res []string) {
+	for _, line := range res {
+		fmt.Println(line)
+	}
 }
 
 func init() {

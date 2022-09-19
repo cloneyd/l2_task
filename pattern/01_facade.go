@@ -1,4 +1,10 @@
-package facade
+package pattern
+
+/*
+	Реализовать паттерн «фасад».
+Объяснить применимость паттерна, его плюсы и минусы,а также реальные примеры использования данного примера на практике.
+	https://en.wikipedia.org/wiki/Facade_pattern
+*/
 
 import (
 	"database/sql"
@@ -7,6 +13,11 @@ import (
 )
 
 // Facade
+type ServiceFacade interface {
+	Start()
+	Stop()
+}
+
 type Service struct {
 	server *HTTPServer
 	db     *DB
@@ -20,12 +31,12 @@ func NewService() *Service {
 	return s
 }
 
-func (s *Service) StartService() {
+func (s *Service) Start() {
 	s.server.Start()
 	s.db.Start()
 }
 
-func (s *Service) StopService() {
+func (s *Service) Stop() {
 	s.server.Stop()
 	s.db.Stop()
 }

@@ -1,6 +1,5 @@
-package cmd
+package sort
 
-// TODO: implement math sort and sort by length structures
 type MathSort []string
 
 func (x MathSort) Len() int           { return len(x) }
