@@ -3,7 +3,6 @@ package cmd
 import (
 	"05dev/internal/file"
 	"05dev/internal/search"
-	"fmt"
 	"github.com/spf13/cobra"
 )
 
@@ -11,7 +10,7 @@ var (
 	after      int
 	before     int
 	context    int
-	count      int
+	count      bool
 	ignoreCase bool
 	invert     bool
 	fixed      bool
@@ -30,7 +29,9 @@ shell command.`,
 				return err
 			}
 
-			fmt.Println(search.FindEntryInLine(lines, target))
+			if err := search.OutputResult(lines, target, after, before, context, count, ignoreCase, invert, fixed, lineNum); err != nil {
+				return err
+			}
 
 			return nil
 		},
@@ -45,7 +46,7 @@ func init() {
 	rootCmd.PersistentFlags().IntVarP(&after, "after", "A", 0, "Print NUM lines of trailing context after matching lines")
 	rootCmd.PersistentFlags().IntVarP(&before, "before", "B", 0, "Print NUM lines of leading context before matching lines.")
 	rootCmd.PersistentFlags().IntVarP(&context, "context", "C", 0, "Print NUM lines of output context.")
-	rootCmd.PersistentFlags().IntVarP(&count, "count", "c", 0, "Suppress normal output; instead print a count of matching lines for each  input  file.")
+	rootCmd.PersistentFlags().BoolVarP(&count, "count", "c", false, "Suppress normal output; instead print a count of matching lines for each  input  file.")
 	rootCmd.PersistentFlags().BoolVarP(&ignoreCase, "ignore-case", "i", false, "Print NUM lines of trailing context after matching lines")
 	rootCmd.PersistentFlags().BoolVarP(&invert, "invert", "v", false, "Print NUM lines of leading context before matching lines.")
 	rootCmd.PersistentFlags().BoolVarP(&fixed, "fixed", "F", false, "Print NUM lines of output context.")
