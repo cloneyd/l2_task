@@ -7,6 +7,7 @@ import (
 	"mysort/internal/file"
 	sort2 "mysort/internal/sort"
 	"sort"
+	"strings"
 )
 
 var (
@@ -17,13 +18,16 @@ var (
 	unique      bool
 	check       bool
 
+	noFile     = errors.New("you haven't specified any file")
+	invalidKey = errors.New(fmt.Sprintf("Index [%d] out of range", key))
+
 	rootCmd = &cobra.Command{
 		Use:   "mysort",
 		Short: "Sorting util for strings in FILE(s)",
 		Long:  "Write sorted concatenation of all FILE(s) to standard output.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return errors.New("you haven't specified any file")
+				return noFile
 			}
 
 			var reader file.Reader
@@ -34,26 +38,34 @@ var (
 				reader = file.ReadFile
 			}
 
-			res, err := file.ReadFiles(args, reader)
+			lines, err := file.ReadFiles(args, reader)
 			if err != nil {
 				return err
 			}
-
-			var sorter sort.Interface
 
 			switch {
 			case key == 0:
 				break
 			case key < 0:
-				return errors.New(fmt.Sprintf("wrond index [%d]", key))
+				return invalidKey
 			default:
-
+				var cols []string
+				for _, line := range lines {
+					words := strings.Fields(line)
+					if len(words) < key {
+						return invalidKey
+					}
+					cols = append(cols, words[key-1])
+				}
+				lines = cols
 			}
 
+			var sorter sort.Interface
+
 			if numericSort {
-				sorter = sort2.MathSort(res)
+				sorter = sort2.MathSort(lines)
 			} else {
-				sorter = sort2.LenSort(res)
+				sorter = sort2.LenSort(lines)
 			}
 
 			if reverse {
@@ -62,7 +74,7 @@ var (
 
 			sort.Sort(sorter)
 
-			printResult(res)
+			printResult(lines)
 
 			return nil
 		},
