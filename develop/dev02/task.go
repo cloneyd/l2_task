@@ -8,8 +8,6 @@ import (
 	"unicode"
 )
 
-const maxDigit = 9
-
 type Unpacker struct {
 	sb strings.Builder
 }

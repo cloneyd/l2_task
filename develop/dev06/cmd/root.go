@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
@@ -68,7 +69,7 @@ func getFields(lines []string) [][]string {
 func outputFields(splited [][]string, field int) error {
 	if field < 1 {
 		fmt.Println("invalid field number")
-		return
+		return errors.New("invalid field number")
 	}
 
 	fmt.Println(field)
@@ -79,6 +80,8 @@ func outputFields(splited [][]string, field int) error {
 
 		fmt.Println(line[field-1])
 	}
+
+	return nil
 }
 
 func init() {
